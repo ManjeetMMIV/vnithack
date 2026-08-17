@@ -12,11 +12,17 @@ node_modules/
 dist/
 build/
 .next/
+*/.next/
 .cache/
 .vite/
+coverage/
+
+# Logs
+*.log
 
 # OS & IDE Files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+.gemini/
