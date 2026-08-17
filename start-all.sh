@@ -43,5 +43,15 @@ echo "Agent Server:       http://localhost:3001"
 echo "=========================================================="
 echo "Press [CTRL+C] to shut down all services."
 
+# Trap SIGINT and SIGTERM to kill all background processes gracefully
+cleanup() {
+    echo ""
+    echo "Shutting down all services..."
+    kill $BACKEND_PID $DASHBOARD_PID $AGENT_SERVER_PID $AGENT_FRONTEND_PID 2>/dev/null
+    exit 0
+}
+
+trap cleanup SIGINT SIGTERM EXIT
+
 # Wait for all background processes
 wait $BACKEND_PID $DASHBOARD_PID $AGENT_SERVER_PID $AGENT_FRONTEND_PID
