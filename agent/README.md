@@ -1,4 +1,4 @@
-# 🛡️ BhumiRakshak — AI Fraud Intelligence Engine (Backend & Frontend)
+# 🛡️  AI Fraud Intelligence Engine (Backend & Frontend)
 
 Autonomous **LangGraph Multi-Agent StateGraph** & **Neo4j Aura Cloud** system built for land registry corruption discovery and criminal syndicate detection.
 
