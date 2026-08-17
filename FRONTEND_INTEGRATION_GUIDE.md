@@ -29,6 +29,33 @@ Creates a new property record in MongoDB and hashes it to the Polygon blockchain
 }
 ```
 
+### `GET /api/records`
+Fetches a list of all land records currently stored in the centralized MongoDB database.
+**Response:** `200 OK`
+```json
+[
+  {
+    "propertyId": "PROP-123",
+    "owner": "John Doe",
+    "coordinates": "40.7128° N, 74.0060° W",
+    "clerkId": "CLK-042",
+    "createdAt": "2026-08-17T12:00:00Z"
+  }
+]
+```
+
+### `GET /api/records/:propertyId`
+Fetches the raw details of a specific property from the database without auditing it.
+**Response:** `200 OK`
+```json
+{
+  "propertyId": "PROP-123",
+  "owner": "John Doe",
+  "coordinates": "40.7128° N, 74.0060° W",
+  "clerkId": "CLK-042"
+}
+```
+
 ### `GET /api/audit/:propertyId`
 Audits a property by comparing the MongoDB data hash against the Polygon blockchain hash.
 **Response (Clean):** `200 OK`

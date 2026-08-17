@@ -46,6 +46,32 @@ router.post('/records', async (req, res) => {
     }
 });
 
+// 1.5 Get all Land Records
+router.get('/records', async (req, res) => {
+    try {
+        const properties = await Property.find().sort({ createdAt: -1 });
+        res.status(200).json(properties);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch records." });
+    }
+});
+
+// 1.6 Get a specific Land Record
+router.get('/records/:propertyId', async (req, res) => {
+    try {
+        const { propertyId } = req.params;
+        const property = await Property.findOne({ propertyId });
+        if (!property) {
+            return res.status(404).json({ error: "Property not found." });
+        }
+        res.status(200).json(property);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch record." });
+    }
+});
+
 // 2. Audit a Land Record
 router.get('/audit/:propertyId', async (req, res) => {
     try {
