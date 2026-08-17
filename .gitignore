@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment Variables & API Secrets
+.env
+.env.local
+.env.*.local
+*/.env
+
+# Build outputs & caches
+dist/
+build/
+.next/
+.cache/
+.vite/
+
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
