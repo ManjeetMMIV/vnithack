@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Booting Nagpur Police Land Registry & Fraud Investigation Stack..."
+echo "Booting Nagpur Police Land Registry & Fraud Investigation Stack..."
 
 # 1. Start Node.js Express Backend (Port 5000)
 echo "Starting Backend API on Port 5000..."
@@ -35,11 +35,11 @@ AGENT_FRONTEND_PID=$!
 cd ../..
 
 echo "=========================================================="
-echo "✅ All systems are online!"
-echo "📍 Security Dashboard: http://localhost:3000"
-echo "📍 Agent Visualizer:   http://localhost:5173"
-echo "📍 Backend API:        http://localhost:5000"
-echo "📍 Agent Server:       http://localhost:3001"
+echo "All systems are online!"
+echo "Security Dashboard: http://localhost:3000"
+echo "Agent Visualizer:   http://localhost:5173"
+echo "Backend API:        http://localhost:5000"
+echo "Agent Server:       http://localhost:3001"
 echo "=========================================================="
 echo "Press [CTRL+C] to shut down all services."
 

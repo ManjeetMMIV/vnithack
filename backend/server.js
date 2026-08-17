@@ -19,7 +19,7 @@ const io = new Server(server, {
 
 // Real-time connection handler
 io.on("connection", (socket) => {
-    console.log(`🔌 Dashboard connected: ${socket.id}`);
+    console.log(`Dashboard connected: ${socket.id}`);
 });
 
 // Middleware
@@ -47,16 +47,21 @@ async function connectDB() {
         uri = mongoServer.getUri();
     }
 
-    mongoose.connect(uri)
-        .then(() => {
-            console.log("✅ Connected to MongoDB");
+    try {
+        await mongoose.connect(uri);
+        console.log("Connected to MongoDB");
+        
+        // Prevent starting server multiple times during tests
+        if (process.env.NODE_ENV !== "test") {
             server.listen(PORT, () => {
-                console.log(`🚀 Server running on port ${PORT}`);
+                console.log(`Server running on port ${PORT}`);
             });
-        })
-        .catch((error) => {
-            console.error("❌ MongoDB connection error:", error);
-        });
+        }
+    } catch (error) {
+        console.error("MongoDB connection error:", error);
+    }
 }
 
 connectDB();
+
+export { app, server };

@@ -5,6 +5,13 @@ import blockchainService from "../blockchainService.js";
 
 const router = express.Router();
 
+/**
+ * Helper function to generate a SHA-256 hash of the property payload.
+ * Ensures consistent serialization of property data for blockchain verification.
+ * 
+ * @param {Object} data - The property data containing propertyId, owner, coordinates, and clerkId.
+ * @returns {string} The hex string representation of the SHA-256 hash.
+ */
 function hashPayload(data) {
     const payloadString = JSON.stringify({
         propertyId: data.propertyId,
@@ -15,10 +22,18 @@ function hashPayload(data) {
     return crypto.createHash('sha256').update(payloadString).digest('hex');
 }
 
-// 1. Create a new Land Record
+/**
+ * POST /records
+ * Creates a new property record in the MongoDB database and hashes it to the Polygon blockchain.
+ * Handles edge cases such as missing required fields (400) and duplicate property IDs (409).
+ */
 router.post('/records', async (req, res) => {
     try {
         const { propertyId, owner, coordinates, clerkId } = req.body;
+
+        if (!propertyId || !owner || !coordinates || !clerkId) {
+            return res.status(400).json({ error: "Missing required fields: propertyId, owner, coordinates, clerkId." });
+        }
 
         const newProperty = new Property({ propertyId, owner, coordinates, clerkId });
         await newProperty.save();
@@ -26,7 +41,6 @@ router.post('/records', async (req, res) => {
         const hash = hashPayload({ propertyId, owner, coordinates, clerkId });
         const txHash = await blockchainService.storeHashOnChain(propertyId, hash);
 
-        // Emit real-time event to the dashboard
         req.io.emit("log", {
             type: "CREATE",
             message: `New authentic record stored for ${propertyId}.`,
@@ -41,12 +55,19 @@ router.post('/records', async (req, res) => {
             blockchainTx: txHash 
         });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ error: "Property ID already exists." });
+        }
         console.error(error);
         res.status(500).json({ error: "Failed to create record." });
     }
 });
 
-// 1.5 Get all Land Records
+/**
+ * GET /records
+ * Retrieves all land records from the centralized MongoDB database.
+ * Used by the frontend to display a list of all properties.
+ */
 router.get('/records', async (req, res) => {
     try {
         const properties = await Property.find().sort({ createdAt: -1 });
@@ -57,7 +78,10 @@ router.get('/records', async (req, res) => {
     }
 });
 
-// 1.6 Get a specific Land Record
+/**
+ * GET /records/:propertyId
+ * Retrieves the raw details of a specific property from the database without performing an audit.
+ */
 router.get('/records/:propertyId', async (req, res) => {
     try {
         const { propertyId } = req.params;
@@ -72,7 +96,11 @@ router.get('/records/:propertyId', async (req, res) => {
     }
 });
 
-// 2. Audit a Land Record
+/**
+ * GET /audit/:propertyId
+ * Audits a property by comparing the data hash in MongoDB against the immutable hash on the Polygon blockchain.
+ * Emits real-time alerts if tampering is detected.
+ */
 router.get('/audit/:propertyId', async (req, res) => {
     try {
         const { propertyId } = req.params;
@@ -86,7 +114,6 @@ router.get('/audit/:propertyId', async (req, res) => {
         const chainData = await blockchainService.verifyHashOnChain(propertyId);
 
         if (dbHash !== chainData.hash) {
-            // Emit RED SIREN event to the dashboard
             req.io.emit("log", {
                 type: "TAMPER_ALERT",
                 message: `TAMPERING DETECTED on ${propertyId}! Database hash does not match immutable blockchain record.`,
@@ -104,10 +131,9 @@ router.get('/audit/:propertyId', async (req, res) => {
             });
         }
 
-        // Emit success event
         req.io.emit("log", {
             type: "AUDIT_OK",
-            message: `Audit passed for ${propertyId}. Record is 100% authentic.`,
+            message: `Audit passed for ${propertyId}. Record is authentic.`,
             propertyId
         });
 
@@ -122,7 +148,11 @@ router.get('/audit/:propertyId', async (req, res) => {
     }
 });
 
-// 3. The secret "Hack" Route for the Hackathon Demo
+/**
+ * PUT /hack/:propertyId
+ * Secret demo route used during presentations to maliciously alter the database record 
+ * without updating the blockchain, thereby demonstrating the tamper-detection system.
+ */
 router.put('/hack/:propertyId', async (req, res) => {
     try {
         const { propertyId } = req.params;
@@ -136,7 +166,6 @@ router.put('/hack/:propertyId', async (req, res) => {
         property.owner = newOwner;
         await property.save();
 
-        // Emit HACK event
         req.io.emit("log", {
             type: "HACK",
             message: `CRITICAL: Centralized database compromised! Record ${propertyId} maliciously altered to owner: ${newOwner}.`,

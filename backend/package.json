@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests/**/*.test.js --exit"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,10 @@
   },
   "type": "module",
   "devDependencies": {
-    "mongodb-memory-server": "^11.2.0"
+    "chai": "^6.2.2",
+    "mocha": "^11.8.0",
+    "mongodb-memory-server": "^11.2.0",
+    "sinon": "^22.1.0",
+    "supertest": "^7.2.2"
   }
 }

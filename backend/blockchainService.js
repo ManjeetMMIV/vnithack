@@ -16,7 +16,7 @@ class BlockchainService {
     if (process.env.PRIVATE_KEY) {
       this.signer = new ethers.Wallet(process.env.PRIVATE_KEY, this.provider);
     } else {
-      console.warn("⚠️ No PRIVATE_KEY provided in .env. Write operations will fail.");
+      console.warn("Warning: No PRIVATE_KEY provided in .env. Write operations will fail.");
     }
 
     this.contractAddress = process.env.CONTRACT_ADDRESS;
@@ -27,7 +27,7 @@ class BlockchainService {
         this.signer || this.provider
       );
     } else {
-      console.warn("⚠️ No CONTRACT_ADDRESS provided in .env. Service is not fully initialized.");
+      console.warn("Warning: No CONTRACT_ADDRESS provided in .env. Service is not fully initialized.");
     }
   }
 
