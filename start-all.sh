@@ -10,12 +10,12 @@ node server.js &
 BACKEND_PID=$!
 cd ..
 
-# 2. Start Next.js Security Dashboard (Port 3000)
-echo "Starting Next.js Security Dashboard on Port 3000..."
-cd dashboard
+# 2. Start Vite Web Frontend (Main Page - Port 3000)
+echo "Starting Vite Web Frontend on Port 3000..."
+cd web-frontend
 npm install
 npm run dev &
-DASHBOARD_PID=$!
+WEB_FRONTEND_PID=$!
 cd ..
 
 # 3. Start LangGraph Agent Server (Port 3001)
@@ -36,7 +36,7 @@ cd ../..
 
 echo "=========================================================="
 echo "All systems are online!"
-echo "Security Dashboard: http://localhost:3000"
+echo "Main Web Frontend:  http://localhost:3000"
 echo "Agent Visualizer:   http://localhost:5173"
 echo "Backend API:        http://localhost:5000"
 echo "Agent Server:       http://localhost:3001"
@@ -47,11 +47,11 @@ echo "Press [CTRL+C] to shut down all services."
 cleanup() {
     echo ""
     echo "Shutting down all services..."
-    kill $BACKEND_PID $DASHBOARD_PID $AGENT_SERVER_PID $AGENT_FRONTEND_PID 2>/dev/null
+    kill $BACKEND_PID $WEB_FRONTEND_PID $AGENT_SERVER_PID $AGENT_FRONTEND_PID 2>/dev/null
     exit 0
 }
 
 trap cleanup SIGINT SIGTERM EXIT
 
 # Wait for all background processes
-wait $BACKEND_PID $DASHBOARD_PID $AGENT_SERVER_PID $AGENT_FRONTEND_PID
+wait $BACKEND_PID $WEB_FRONTEND_PID $AGENT_SERVER_PID $AGENT_FRONTEND_PID

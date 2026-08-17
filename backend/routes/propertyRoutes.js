@@ -97,11 +97,11 @@ router.get('/records/:propertyId', async (req, res) => {
 });
 
 /**
- * GET /audit/:propertyId
+ * GET /records/verify/:propertyId
  * Audits a property by comparing the data hash in MongoDB against the immutable hash on the Polygon blockchain.
  * Emits real-time alerts if tampering is detected.
  */
-router.get('/audit/:propertyId', async (req, res) => {
+router.get('/records/verify/:propertyId', async (req, res) => {
     try {
         const { propertyId } = req.params;
 
@@ -113,7 +113,9 @@ router.get('/audit/:propertyId', async (req, res) => {
         const dbHash = hashPayload(property);
         const chainData = await blockchainService.verifyHashOnChain(propertyId);
 
-        if (dbHash !== chainData.hash) {
+        const isAuthentic = (dbHash === chainData.hash);
+
+        if (!isAuthentic) {
             req.io.emit("log", {
                 type: "TAMPER_ALERT",
                 message: `TAMPERING DETECTED on ${propertyId}! Database hash does not match immutable blockchain record.`,
@@ -121,26 +123,38 @@ router.get('/audit/:propertyId', async (req, res) => {
                 expectedHash: chainData.hash,
                 actualHash: dbHash
             });
-
-            return res.status(409).json({ 
-                status: "TAMPERED",
-                message: "WARNING: Database mismatch detected! The data has been maliciously altered.",
-                expectedHash: chainData.hash,
-                actualHash: dbHash,
-                lastAuthenticTimestamp: new Date(chainData.timestamp * 1000)
+        } else {
+            req.io.emit("log", {
+                type: "AUDIT_OK",
+                message: `Audit passed for ${propertyId}. Record is authentic.`,
+                propertyId
             });
         }
 
-        req.io.emit("log", {
-            type: "AUDIT_OK",
-            message: `Audit passed for ${propertyId}. Record is authentic.`,
-            propertyId
-        });
-
-        res.status(200).json({ 
-            status: "AUTHENTIC",
-            message: "Record verified against the blockchain.",
-            hash: dbHash
+        res.status(isAuthentic ? 200 : 409).json({ 
+            verification: {
+                integrityPassed: isAuthentic,
+                status: isAuthentic ? "AUTHENTIC RECORD - NO TAMPERING" : "TAMPERED - HASH MISMATCH",
+                expectedOriginalHash: chainData.hash,
+                currentCalculatedHash: dbHash
+            },
+            data: {
+                propertyId: property.propertyId,
+                ownerName: property.owner,
+                clerkId: property.clerkId,
+                coordinates: {
+                    latitude: property.coordinates.split(',')[0]?.trim() || "0",
+                    longitude: property.coordinates.split(',')[1]?.trim() || "0"
+                },
+                areaSqFt: 2400, // Default area for old properties without it
+                history: [
+                    {
+                        action: isAuthentic ? 'VERIFIED' : 'UNAUTHORIZED_ALTERATION',
+                        modifiedBy: isAuthentic ? 'SYSTEM' : property.clerkId,
+                        timestamp: new Date().toISOString()
+                    }
+                ]
+            }
         });
     } catch (error) {
         console.error(error);

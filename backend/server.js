@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import propertyRoutes from "./routes/propertyRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/api", propertyRoutes);
+app.use("/api", documentRoutes);
 
 // Database Connection
 async function connectDB() {
