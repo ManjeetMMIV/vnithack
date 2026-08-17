@@ -31,6 +31,11 @@ const InvestigationStateAnnotation = Annotation.Root({
 
 /**
  * Node 1: Graph Crawler & Neo4j Subgraph Extraction Node
+ * Orchestrates the autonomous database traversal agent to securely fetch 
+ * structured transaction histories and known associates.
+ * 
+ * @param {Object} state - The current state of the LangGraph workflow.
+ * @returns {Object} Updated state containing the graphData payload.
  */
 async function graphCrawlerNode(state) {
   const log = state.logger || (() => {});
@@ -44,7 +49,11 @@ async function graphCrawlerNode(state) {
 
 /**
  * Conditional Edge: Anomaly Detection Router
- * Evaluates whether the extracted graph topology warrants deep LLM forensic reasoning
+ * Evaluates whether the extracted graph topology warrants deep LLM forensic reasoning.
+ * Bypasses the costly LLM inference if the subgraph exhibits zero risk indicators.
+ * 
+ * @param {Object} state - The current workflow state.
+ * @returns {string} The name of the next node to execute ('forensicReasoner' or 'cleanSynthesizer').
  */
 function anomalyRouter(state) {
   const log = state.logger || (() => {});
@@ -66,6 +75,10 @@ function anomalyRouter(state) {
 
 /**
  * Node 2: Forensic AI Reasoner Node (OpenAI GPT-4o-mini)
+ * Delegates complex spatial and financial deduction tasks to an LLM.
+ * 
+ * @param {Object} state - The current workflow state.
+ * @returns {Object} Updated state containing the calculated forensicData.
  */
 async function forensicReasonerNode(state) {
   const log = state.logger || (() => {});
@@ -79,6 +92,11 @@ async function forensicReasonerNode(state) {
 
 /**
  * Node 3A: Clean Case Synthesis Node (Fast path)
+ * Generates an automated clean-bill-of-health report for transactions
+ * that did not trigger the anomaly detection heuristic.
+ * 
+ * @param {Object} state - The current workflow state.
+ * @returns {Object} Updated state containing a benign forensicData object.
  */
 async function cleanSynthesizerNode(state) {
   const log = state.logger || (() => {});
@@ -103,6 +121,11 @@ async function cleanSynthesizerNode(state) {
 
 /**
  * Node 3B: Final Legal & Graph Visualization Synthesis Node
+ * Merges raw data and AI analysis into a structured JSON dossier intended 
+ * for frontend visualization or law enforcement archiving.
+ * 
+ * @param {Object} state - The current workflow state.
+ * @returns {Object} Updated state containing the finalReport.
  */
 async function legalSynthesizerNode(state) {
   const log = state.logger || (() => {});
@@ -146,8 +169,8 @@ class LangGraphOrchestrator {
 
   async runInvestigation(clerkId) {
     this.emitLog('INIT', `══════════════════════════════════════════════════════`);
-    this.emitLog('INIT', `🕸️ LANGGRAPH MULTI-AGENT STATEGRAPH INITIALIZED`);
-    this.emitLog('INIT', `🎯 Target: Clerk [${clerkId}] | Directed StateGraph Execution`);
+    this.emitLog('INIT', ` LANGGRAPH MULTI-AGENT STATEGRAPH INITIALIZED`);
+    this.emitLog('INIT', ` Target: Clerk [${clerkId}] | Directed StateGraph Execution`);
     this.emitLog('INIT', `══════════════════════════════════════════════════════`);
 
     const initialState = {

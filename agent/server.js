@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", message: "Nagpur Police LangGraph Multi-Agent Server is running" });
+  res.json({ status: "ok", message: "NAGAR LangGraph Multi-Agent Server is running" });
 });
 
 // Dynamic Clerks Roster from Neo4j
@@ -85,7 +85,7 @@ app.get("/api/agent/analyze/:clerkId", async (req, res) => {
     console.error(`LangGraph Investigation Error for ${clerkId}:`, error);
     sendEvent("log", {
       phase: "ERROR",
-      message: `❌ Investigation halted: ${error.message}`,
+      message: ` Investigation halted: ${error.message}`,
       timestamp: new Date().toLocaleTimeString("en-US", { hour12: false }),
     });
     res.end();
@@ -93,5 +93,5 @@ app.get("/api/agent/analyze/:clerkId", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Nagpur Police LangGraph Multi-Agent Server running at http://localhost:${PORT}`);
+  console.log(` NAGAR LangGraph Multi-Agent Server running at http://localhost:${PORT}`);
 });

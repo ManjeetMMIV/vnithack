@@ -10,8 +10,17 @@ class GraphInvestigatorAgent {
     this.log = logger;
   }
 
+  /**
+   * Executes a comprehensive traversal of the Neo4j graph database to extract
+   * property transaction histories, cross-reference ownership chains, and 
+   * proactively scan for circular transfers or benami proxy structures tied 
+   * to a specific registry clerk.
+   * 
+   * @param {string} clerkId - The unique identifier of the clerk to investigate.
+   * @returns {Object} An object containing the extracted subgraph, including clerk profile, properties, circular rings, and anomalies.
+   */
   async investigate(clerkId) {
-    this.log('GRAPH_INVESTIGATOR', `🚀 Initializing Neo4j Autonomous Graph Crawl for Clerk [${clerkId}]...`);
+    this.log('GRAPH_INVESTIGATOR', ` Initializing Neo4j Autonomous Graph Crawl for Clerk [${clerkId}]...`);
     const startTime = Date.now();
 
     // 1. Fetch Clerk Profile & Scope
@@ -26,7 +35,7 @@ class GraphInvestigatorAgent {
     }
 
     const clerkProps = clerkRecords[0].get('c').properties;
-    this.log('GRAPH_INVESTIGATOR', `📋 Clerk Profile: ${clerkProps.name} | ${clerkProps.zone} | Dept: ${clerkProps.department} | Status: ${clerkProps.status}`);
+    this.log('GRAPH_INVESTIGATOR', ` Clerk Profile: ${clerkProps.name} | ${clerkProps.zone} | Dept: ${clerkProps.department} | Status: ${clerkProps.status}`);
 
     // 2. Fetch all Properties Approved by this Clerk
     this.log('GRAPH_QUERY', `Executing Cypher: MATCH (c:Clerk {id: "${clerkId}"})-[r:APPROVED]->(p:Property) RETURN p, r`);
@@ -52,7 +61,7 @@ class GraphInvestigatorAgent {
       };
     });
 
-    this.log('GRAPH_INVESTIGATOR', `📊 Discovered ${approvedProperties.length} approved properties under clerk jurisdiction.`);
+    this.log('GRAPH_INVESTIGATOR', ` Discovered ${approvedProperties.length} approved properties under clerk jurisdiction.`);
 
     // 3. Extract Full Ownership Graph & Entity Ties
     this.log('GRAPH_QUERY', `Traversing Subgraph: MATCH (c:Clerk {id: "${clerkId}"})-[:APPROVED]->(p:Property)<-[:OWNS]-(owner) RETURN owner, p`);
@@ -86,9 +95,9 @@ class GraphInvestigatorAgent {
     }));
 
     if (cycles.length > 0) {
-      this.log('ANOMALY_SCAN', `🚨 [CRITICAL] Detected Circular Transfer Loop (${cycles[0].hopCount} hops): ${cycles[0].cycleNodes.map(n => n.name).join(' ➔ ')}`);
+      this.log('ANOMALY_SCAN', ` [CRITICAL] Detected Circular Transfer Loop (${cycles[0].hopCount} hops): ${cycles[0].cycleNodes.map(n => n.name).join('  ')}`);
     } else {
-      this.log('ANOMALY_SCAN', `✓ No closed circular transfer loops found in direct ownership hops.`);
+      this.log('ANOMALY_SCAN', ` No closed circular transfer loops found in direct ownership hops.`);
     }
 
     // 5. Shell Entity / Co-Location / Directorship Connections
@@ -128,7 +137,7 @@ class GraphInvestigatorAgent {
 
     if (collusionLinks.length > 0) {
       collusionLinks.forEach(link => {
-        this.log('ANOMALY_SCAN', `🚨 [SUSPICIOUS TIE] ${link.details}`);
+        this.log('ANOMALY_SCAN', ` [SUSPICIOUS TIE] ${link.details}`);
       });
     }
 
@@ -156,12 +165,12 @@ class GraphInvestigatorAgent {
 
     if (valuationAnomalies.length > 0) {
       valuationAnomalies.forEach(va => {
-        this.log('ANOMALY_SCAN', `⚠️ Severe Undervaluation on ${va.propId} (${va.surveyNo}): Registered at ₹${va.registeredPriceINR.toLocaleString('en-IN')} vs Circle Rate ₹${va.circleRateINR.toLocaleString('en-IN')} (${va.undervaluationPercent}% Evasion)`);
+        this.log('ANOMALY_SCAN', ` Severe Undervaluation on ${va.propId} (${va.surveyNo}): Registered at ₹${va.registeredPriceINR.toLocaleString('en-IN')} vs Circle Rate ₹${va.circleRateINR.toLocaleString('en-IN')} (${va.undervaluationPercent}% Evasion)`);
       });
     }
 
     const elapsed = Date.now() - startTime;
-    this.log('GRAPH_INVESTIGATOR', `✅ Neo4j Subgraph Crawl complete in ${elapsed}ms. Extracted ${approvedProperties.length} properties, ${propertyOwners.length} owners, ${cycles.length} cycles, ${collusionLinks.length} entity links.`);
+    this.log('GRAPH_INVESTIGATOR', ` Neo4j Subgraph Crawl complete in ${elapsed}ms. Extracted ${approvedProperties.length} properties, ${propertyOwners.length} owners, ${cycles.length} cycles, ${collusionLinks.length} entity links.`);
 
     return {
       clerk: clerkProps,

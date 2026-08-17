@@ -11,8 +11,16 @@ class ForensicAnalyzerAgent {
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
+  /**
+   * Processes the extracted graph topology utilizing an advanced Large Language Model
+   * to conduct forensic reasoning. Evaluates transaction chains, identifies potential 
+   * statutory violations (e.g. PMLA, Benami Act), and calculates a probabilistic risk score.
+   * 
+   * @param {Object} graphData - The aggregated subgraph data from the graph investigator.
+   * @returns {Object} Forensic evaluation report detailing verdicts, legal implications, and scores.
+   */
   async analyze(graphData) {
-    this.log('ML_INFERENCE', `🧠 Initializing Forensic AI Reasoner (OpenAI GPT-4o-mini)...`);
+    this.log('ML_INFERENCE', ` Initializing Forensic AI Reasoner (OpenAI GPT-4o-mini)...`);
     const startTime = Date.now();
 
     const clerk = graphData.clerk;
@@ -24,7 +32,7 @@ class ForensicAnalyzerAgent {
     this.log('ML_INFERENCE', `Feeding Neo4j subgraph features [${properties.length} properties, ${cycles.length} cycles, ${collusionLinks.length} entity links] into AI Engine...`);
 
     const prompt = `
-You are the Chief Forensic Cyber Investigator for the Nagpur Police Anti-Corruption Bureau & Economic Offences Wing (EOW).
+You are the Chief Forensic Cyber Investigator for the NAGAR Anti-Corruption Bureau & Economic Offences Wing (EOW).
 Analyze the following land registry graph topology extracted directly from our live Neo4j database for Administrative Clerk ${clerk.name} (${clerk.id}, ${clerk.zone}):
 
 --- GRAPH EVIDENCE EXTRACTED ---
@@ -81,9 +89,9 @@ Provide an authoritative forensic report in pure JSON with the following structu
       const parsed = JSON.parse(response.choices[0].message.content);
       const elapsed = Date.now() - startTime;
 
-      this.log('CORRELATION', `🔍 AI Deduction: Pattern classified as "${parsed.patternTitle}"`);
-      this.log('CORRELATION', `⚖️ Identified Legal Violations: ${parsed.statutoryViolations.join(', ')}`);
-      this.log('CORRELATION', `🚨 Calculated Risk Score: ${parsed.riskScore} (${parsed.verdict})`);
+      this.log('CORRELATION', ` AI Deduction: Pattern classified as "${parsed.patternTitle}"`);
+      this.log('CORRELATION', ` Identified Legal Violations: ${parsed.statutoryViolations.join(', ')}`);
+      this.log('CORRELATION', ` Calculated Risk Score: ${parsed.riskScore} (${parsed.verdict})`);
 
       if (parsed.reasoningSteps && parsed.reasoningSteps.length > 0) {
         parsed.reasoningSteps.forEach(step => {
@@ -91,14 +99,14 @@ Provide an authoritative forensic report in pure JSON with the following structu
         });
       }
 
-      this.log('ML_INFERENCE', `✅ Forensic Reasoning complete in ${elapsed}ms.`);
+      this.log('ML_INFERENCE', ` Forensic Reasoning complete in ${elapsed}ms.`);
 
       return {
         ...parsed,
         analysisDurationMs: elapsed,
       };
     } catch (err) {
-      this.log('ML_INFERENCE', `⚠️ OpenAI LLM fallback triggered: ${err.message}`);
+      this.log('ML_INFERENCE', ` OpenAI LLM fallback triggered: ${err.message}`);
       // Fallback rule-based analysis
       const isClean = clerk.status === 'CLEAN';
       return {

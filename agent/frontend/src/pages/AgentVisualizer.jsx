@@ -119,7 +119,7 @@ function App() {
         <div className="header-left">
           <img src="/nagpur-police-logo.jpg" alt="Nagpur City Police" className="header-logo" />
           <div className="header-text">
-            <h1>Nagpur Police Anti Corruption Bureau</h1>
+            <h1>NAGAR Anti Corruption Bureau</h1>
             <p>Automated Land Fraud & Corruption Intelligence System</p>
           </div>
         </div>
@@ -198,7 +198,7 @@ function App() {
       {/* Flagged Clerks Section */}
       <div className="clerks-section">
         <h2 className="clerks-title">
-          <span className="clerks-icon">🏛️</span> Administrative Clerks Registry (Nagpur Division)
+          <span className="clerks-icon"></span> Administrative Clerks Registry (Nagpur Division)
         </h2>
 
         {loadingClerks ? (
@@ -224,7 +224,7 @@ function App() {
                 <div className="clerk-dept">{clerk.zone}</div>
                 <div className="clerk-meta">{clerk.properties} approved properties</div>
                 {analyzedClerks.has(clerk.id) && (
-                  <div className="clerk-analyzed-badge">✓ Case Analyzed</div>
+                  <div className="clerk-analyzed-badge"> Case Analyzed</div>
                 )}
               </button>
             ))}

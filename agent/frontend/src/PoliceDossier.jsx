@@ -10,7 +10,7 @@ export default function PoliceDossier({ report }) {
     <div className={`police-dossier-card ${isClean ? 'dossier-clean' : 'dossier-flagged'}`}>
       <div className="dossier-header">
         <div className="dossier-badge-row">
-          <span className="police-tag">NAGPUR POLICE ANTI-CORRUPTION BUREAU</span>
+          <span className="police-tag">NAGAR ANTI-CORRUPTION BUREAU</span>
           <span className={`status-pill ${isClean ? 'pill-clean' : 'pill-critical'}`}>
             {report.status}
           </span>
@@ -53,7 +53,7 @@ export default function PoliceDossier({ report }) {
                 ))}
               </div>
             ) : (
-              <div className="no-violations">✓ No statutory violations detected</div>
+              <div className="no-violations"> No statutory violations detected</div>
             )}
           </div>
         </div>

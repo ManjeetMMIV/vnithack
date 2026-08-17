@@ -128,7 +128,7 @@ export default function App() {
                 Government of Maharashtra • Nagpur City Police & Cyber Cell • NMC
               </div>
               <h1 className="text-base md:text-xl font-black tracking-tight text-[#003366] flex items-center gap-2">
-                NAGPUR DIGITAL LAND REGISTRY & TAMPER-DETECTION PORTAL
+                NAGAR: NAGPUR AGENTIC GRID FOR ANTI-CORRUPTION REGISTRY
               </h1>
               <div className="text-xs text-slate-500 font-medium flex items-center gap-2">
                 <span className="font-semibold text-slate-700">सद्रक्षणाय खलनिग्रहणाय</span>

@@ -1,180 +1,108 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import ForceGraph2D from 'react-force-graph-2d';
 
 export default function GraphVisualizer({ graphData, title }) {
-  const canvasRef = useRef(null);
-  const [hoveredNode, setHoveredNode] = useState(null);
-  const [positions, setPositions] = useState({});
+  const fgRef = useRef();
+  
+  const [data, setData] = useState({ nodes: [], links: [] });
 
   useEffect(() => {
-    if (!graphData || !graphData.nodes || graphData.nodes.length === 0) return;
+    if (!graphData || !graphData.nodes) return;
+    const links = (graphData.edges || []).map(e => ({
+      ...e,
+      source: e.from,
+      target: e.to
+    }));
+    setData({ nodes: graphData.nodes, links });
+  }, [graphData]);
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    // Calculate layout positions
-    const nodes = graphData.nodes;
-    const edges = graphData.edges;
-    const newPositions = {};
-
-    const clerkNode = nodes.find(n => n.type === 'CLERK');
-    const propNodes = nodes.filter(n => n.type === 'PROPERTY');
-    const otherNodes = nodes.filter(n => n.type !== 'CLERK' && n.type !== 'PROPERTY');
-
-    // Place Clerk at center
-    if (clerkNode) {
-      newPositions[clerkNode.id] = { x: centerX, y: centerY, node: clerkNode };
+  // Tune physics and center graph on load
+  useEffect(() => {
+    if (fgRef.current) {
+      // Increase repulsion to push nodes apart
+      fgRef.current.d3Force('charge').strength(-400);
+      // Increase the resting distance of the links
+      fgRef.current.d3Force('link').distance(80);
     }
-
-    // Place Properties in inner ring
-    const propRadius = Math.min(width, height) * 0.26;
-    propNodes.forEach((p, idx) => {
-      const angle = (idx / Math.max(1, propNodes.length)) * Math.PI * 2 - Math.PI / 2;
-      newPositions[p.id] = {
-        x: centerX + Math.cos(angle) * propRadius,
-        y: centerY + Math.sin(angle) * propRadius,
-        node: p,
-      };
-    });
-
-    // Place Citizens / Companies in outer ring
-    const outerRadius = Math.min(width, height) * 0.42;
-    otherNodes.forEach((o, idx) => {
-      const angle = (idx / Math.max(1, otherNodes.length)) * Math.PI * 2;
-      newPositions[o.id] = {
-        x: centerX + Math.cos(angle) * outerRadius,
-        y: centerY + Math.sin(angle) * outerRadius,
-        node: o,
-      };
-    });
-
-    setPositions(newPositions);
-
-    // Animation Frame for rendering
-    let animId;
-    let pulse = 0;
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // 1. Draw Edges
-      edges.forEach(edge => {
-        const from = newPositions[edge.from];
-        const to = newPositions[edge.to];
-        if (!from || !to) return;
-
-        ctx.beginPath();
-        ctx.moveTo(from.x, from.y);
-        ctx.lineTo(to.x, to.y);
-
-        if (edge.highlight) {
-          ctx.strokeStyle = `rgba(214, 48, 49, ${0.7 + Math.sin(pulse) * 0.3})`;
-          ctx.lineWidth = 3.5;
-        } else {
-          ctx.strokeStyle = edge.color || '#b2bec3';
-          ctx.lineWidth = edge.dashes ? 1.5 : 2;
-        }
-
-        if (edge.dashes) {
-          ctx.setLineDash([4, 4]);
-        } else {
-          ctx.setLineDash([]);
-        }
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Draw relationship label midpoint
-        const midX = (from.x + to.x) / 2;
-        const midY = (from.y + to.y) / 2;
-        ctx.fillStyle = edge.highlight ? '#d63031' : '#636e72';
-        ctx.font = '9px "JetBrains Mono", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(edge.label || '', midX, midY - 4);
-      });
-
-      // 2. Draw Nodes
-      nodes.forEach(node => {
-        const pos = newPositions[node.id];
-        if (!pos) return;
-
-        const isHovered = hoveredNode && hoveredNode.id === node.id;
-        const radius = (node.size || 20) + (isHovered ? 4 : 0);
-
-        // Node Glow for highlighted/clerk
-        if (node.type === 'CLERK' || isHovered) {
-          ctx.beginPath();
-          ctx.arc(pos.x, pos.y, radius + 6, 0, Math.PI * 2);
-          ctx.fillStyle = node.color ? `${node.color}33` : 'rgba(108, 92, 231, 0.2)';
-          ctx.fill();
-        }
-
-        // Node Circle
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = node.color || '#6c5ce7';
-        ctx.fill();
-        ctx.lineWidth = isHovered ? 3 : 2;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-
-        // Node Type Badge / Text
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 10px "Inter", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const typeInitial = node.type ? node.type.charAt(0) : 'N';
-        ctx.fillText(typeInitial, pos.x, pos.y);
-
-        // Node Label below circle
-        ctx.fillStyle = '#2d3436';
-        ctx.font = '10px "Inter", sans-serif';
-        ctx.textBaseline = 'top';
-        ctx.fillText(node.name || node.id, pos.x, pos.y + radius + 4);
-      });
-
-      pulse += 0.05;
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      cancelAnimationFrame(animId);
-    };
-  }, [graphData, hoveredNode]);
-
-  // Handle Mouse Move for Hover Tooltips
-  const handleMouseMove = (e) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    let found = null;
-    Object.values(positions).forEach(({ x: nx, y: ny, node }) => {
-      const dist = Math.sqrt((x - nx) ** 2 + (y - ny) ** 2);
-      if (dist <= (node.size || 20) + 5) {
-        found = { ...node, screenX: e.clientX, screenY: e.clientY };
-      }
-    });
-
-    setHoveredNode(found);
-  };
+    
+    if (fgRef.current && data.nodes.length > 0) {
+      setTimeout(() => {
+        fgRef.current.zoomToFit(400, 50);
+      }, 500);
+    }
+  }, [data]);
 
   if (!graphData || !graphData.nodes || graphData.nodes.length === 0) {
     return null;
   }
 
+  const paintNode = useCallback((node, ctx, globalScale) => {
+    // Scale down the original sizes which were meant for a larger native canvas
+    const radius = (node.size ? node.size / 2.5 : 6);
+    
+    // Draw outer glow if Clerk
+    if (node.type === 'CLERK') {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, radius + 3, 0, 2 * Math.PI, false);
+      ctx.fillStyle = node.color ? `${node.color}33` : 'rgba(108, 92, 231, 0.2)';
+      ctx.fill();
+    }
+    
+    // Draw Node
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = node.color || '#6c5ce7';
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#fff';
+    ctx.stroke();
+
+    // Draw label
+    const label = node.name || node.id;
+    const fontSize = 12/globalScale;
+    ctx.font = `${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = '#2d3436';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label, node.x, node.y + radius + 2);
+    
+    // Initial
+    const initial = node.type ? node.type.charAt(0) : 'N';
+    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(initial, node.x, node.y);
+  }, []);
+
+  const paintLink = useCallback((link, ctx, globalScale) => {
+    const start = link.source;
+    const end = link.target;
+    if (!start || !end || !start.x || !end.x) return;
+
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    
+    if (link.highlight) {
+      ctx.strokeStyle = 'rgba(214, 48, 49, 0.8)';
+      ctx.lineWidth = 2 / globalScale;
+    } else {
+      ctx.strokeStyle = link.color || '#b2bec3';
+      ctx.lineWidth = link.dashes ? 1 / globalScale : 1.5 / globalScale;
+    }
+    
+    if (link.dashes) {
+      ctx.setLineDash([4/globalScale, 4/globalScale]);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }, []);
+
   return (
     <div className="graph-visualizer-card">
       <div className="graph-header">
         <div className="graph-title-group">
-          <h3>🕸️ Transaction & Syndicate Network Graph</h3>
+          <h3>Transaction & Syndicate Network Graph</h3>
           <span className="graph-subtitle">{title || 'Live Relationship Trails & Entity Connections'}</span>
         </div>
         <div className="graph-legend">
@@ -185,23 +113,19 @@ export default function GraphVisualizer({ graphData, title }) {
           <span className="legend-item"><span className="legend-dot fraud"></span> Fraud Loop</span>
         </div>
       </div>
-
-      <div className="canvas-wrapper" onMouseMove={handleMouseMove} onMouseLeave={() => setHoveredNode(null)}>
-        <canvas ref={canvasRef} width={760} height={420} className="graph-canvas" />
-
-        {hoveredNode && (
-          <div
-            className="graph-tooltip"
-            style={{
-              left: `${hoveredNode.screenX ? hoveredNode.screenX - canvasRef.current.getBoundingClientRect().left + 15 : 20}px`,
-              top: `${hoveredNode.screenY ? hoveredNode.screenY - canvasRef.current.getBoundingClientRect().top + 15 : 20}px`,
-            }}
-          >
-            <div className="tooltip-type">{hoveredNode.type}</div>
-            <div className="tooltip-name">{hoveredNode.name || hoveredNode.id}</div>
-            <div className="tooltip-details">{hoveredNode.details || hoveredNode.id}</div>
-          </div>
-        )}
+      <div className="canvas-wrapper" style={{ height: 420 }}>
+        <ForceGraph2D
+          ref={fgRef}
+          width={760}
+          height={420}
+          graphData={data}
+          nodeCanvasObject={paintNode}
+          linkCanvasObject={paintLink}
+          d3Force="charge"
+          nodeRelSize={6}
+          d3VelocityDecay={0.1}
+          cooldownTicks={100}
+        />
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ async function runCliTest() {
     console.log('Graph Nodes:  ', report.visualGraph.nodes.length);
     console.log('Graph Edges:  ', report.visualGraph.edges.length);
   } catch (err) {
-    console.error('❌ Pipeline Error:', err);
+    console.error(' Pipeline Error:', err);
   } finally {
     await closeDriver();
   }

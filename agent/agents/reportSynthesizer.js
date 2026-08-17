@@ -8,8 +8,17 @@ class ReportSynthesizerAgent {
     this.log = logger;
   }
 
+  /**
+   * Transforms raw forensic deductions and graph relationships into a standardized,
+   * police-grade intelligence dossier. Constructs the visual node-edge payload required 
+   * for interactive dashboard mapping (e.g., ForceGraph).
+   * 
+   * @param {Object} graphData - The raw extracted subgraph.
+   * @param {Object} forensicData - The AI-generated forensic reasoning and verdicts.
+   * @returns {Object} The finalized intelligence report optimized for UI rendering and review.
+   */
   synthesize(graphData, forensicData) {
-    this.log('RESULT', `📑 Synthesizing Nagpur Police Intelligence Dossier & Dynamic Graph Topology...`);
+    this.log('RESULT', ` Synthesizing NAGAR Intelligence Dossier & Dynamic Graph Topology...`);
 
     const clerk = graphData.clerk;
     const properties = graphData.approvedProperties;
@@ -105,8 +114,8 @@ class ReportSynthesizerAgent {
       edges,
     };
 
-    this.log('RESULT', `✨ Graph Topology Compiled: ${visualGraph.nodes.length} nodes, ${visualGraph.edges.length} relationships.`);
-    this.log('RESULT', `🛡️ Final Recommendation: ${forensicData.recommendedAction}`);
+    this.log('RESULT', ` Graph Topology Compiled: ${visualGraph.nodes.length} nodes, ${visualGraph.edges.length} relationships.`);
+    this.log('RESULT', ` Final Recommendation: ${forensicData.recommendedAction}`);
 
     const finalReport = {
       clerkId: clerk.id,

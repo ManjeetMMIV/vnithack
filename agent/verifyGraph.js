@@ -2,7 +2,7 @@ require('dotenv').config();
 const { runQuery, closeDriver } = require('./neo4jClient');
 
 async function testQueries() {
-  console.log('🔍 Running real Cypher queries on Neo4j Aura...\n');
+  console.log(' Running real Cypher queries on Neo4j Aura...\n');
 
   // Query 1: List all 5 clerks and their approved properties count
   console.log('--- 1. Clerks & Approved Properties Count ---');
@@ -26,8 +26,8 @@ async function testQueries() {
   `);
   if (cycleRes.length > 0) {
     const r = cycleRes[0];
-    console.log(`🚨 Loop Origin: ${r.get('loopOrigin')}`);
-    console.log(`🔁 Fraud Ring Path: ${r.get('ringCycle').join(' ➔ ')} (${r.get('hopCount').toInt()} hops)`);
+    console.log(` Loop Origin: ${r.get('loopOrigin')}`);
+    console.log(` Fraud Ring Path: ${r.get('ringCycle').join('  ')} (${r.get('hopCount').toInt()} hops)`);
   }
 
   // Query 3: Shell Company Director Link for CLK-017
@@ -38,7 +38,7 @@ async function testQueries() {
   `);
   if (shellRes.length > 0) {
     const r = shellRes[0];
-    console.log(`🚨 Clerk Collusion: ${r.get('clerkName')} shares address with ${r.get('directorName')} (Director of ${r.get('companyName')}, CIN: ${r.get('cin')})`);
+    console.log(` Clerk Collusion: ${r.get('clerkName')} shares address with ${r.get('directorName')} (Director of ${r.get('companyName')}, CIN: ${r.get('cin')})`);
   }
 
   await closeDriver();

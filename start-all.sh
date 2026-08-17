@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Booting Nagpur Police Land Registry & Fraud Investigation Stack..."
+echo "Booting NAGAR (Nagpur Agentic Grid for Anti-Corruption Registry) Stack..."
 
 # 1. Start Node.js Express Backend (Port 5000)
 echo "Starting Backend API on Port 5000..."

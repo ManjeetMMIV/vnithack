@@ -5,15 +5,15 @@ async function seed() {
   const driver = getDriver();
   const session = driver.session();
 
-  console.log('🚀 Connecting to Neo4j Aura to seed multi-clerk land fraud graph...');
+  console.log(' Connecting to Neo4j Aura to seed multi-clerk land fraud graph...');
 
   try {
     // 1. Wipe existing graph cleanly
-    console.log('🧹 Clearing existing graph database...');
+    console.log(' Clearing existing graph database...');
     await session.run('MATCH (n) DETACH DELETE n');
 
     // 2. Setup schema constraints & indexes
-    console.log('📐 Creating constraints and indexes...');
+    console.log(' Creating constraints and indexes...');
     try {
       await session.run('CREATE CONSTRAINT unique_clerk_id IF NOT EXISTS FOR (c:Clerk) REQUIRE c.id IS UNIQUE');
       await session.run('CREATE CONSTRAINT unique_prop_id IF NOT EXISTS FOR (p:Property) REQUIRE p.id IS UNIQUE');
@@ -24,7 +24,7 @@ async function seed() {
     }
 
     // 3. Insert Clerks (5 diverse cases)
-    console.log('👤 Seeding Clerks (5 administrative profiles)...');
+    console.log(' Seeding Clerks (5 administrative profiles)...');
     await session.run(`
       CREATE (c1:Clerk {
         id: 'CLK-042',
@@ -69,7 +69,7 @@ async function seed() {
     `);
 
     // 4. Insert Citizens & Entities
-    console.log('👥 Seeding Citizens & Corporate Entities across Nagpur...');
+    console.log(' Seeding Citizens & Corporate Entities across Nagpur...');
     await session.run(`
       // Ring 1 Entities (Circular loop with CLK-042)
       CREATE (g1:Citizen {id: 'CIT-101', name: 'Anil Gupta', pan: 'AGUPT8821K', address: '14, West High Court Rd, Dharampeth', phone: '+91-9823011221'})
@@ -102,7 +102,7 @@ async function seed() {
     `);
 
     // 5. Seed Properties
-    console.log('🏡 Seeding Properties across Nagpur Urban & Suburban areas...');
+    console.log(' Seeding Properties across Nagpur Urban & Suburban areas...');
     await session.run(`
       // CLK-042 Properties (Circular Ring - Dharampeth)
       CREATE (p1:Property {id: 'PROP-1021', surveyNo: 'SY-401/A', location: 'Dharampeth West, Nagpur', areaSqFt: 3400, marketValuationINR: 18500000, circleRateINR: 17000000, lastUpdated: '2026-06-12'})
@@ -136,7 +136,7 @@ async function seed() {
     `);
 
     // 6. Seed Complex Fraud Relationships & Links
-    console.log('🔗 Wiring Neo4j Graph Relationships & Fraud Patterns...');
+    console.log(' Wiring Neo4j Graph Relationships & Fraud Patterns...');
     await session.run(`
       // --- PATTERN 1: CLK-042 (Circular Ownership Ring) ---
       MATCH (c:Clerk {id: 'CLK-042'})
@@ -241,15 +241,15 @@ async function seed() {
 
     const r = countRes.records[0];
     console.log('\n================ SEEDING COMPLETE ================');
-    console.log(`✅ Clerks Seeded:        ${r.get('clerks').toInt()}`);
-    console.log(`✅ Properties Seeded:    ${r.get('properties').toInt()}`);
-    console.log(`✅ Citizens Seeded:      ${r.get('citizens').toInt()}`);
-    console.log(`✅ Companies Seeded:     ${r.get('companies').toInt()}`);
-    console.log(`✅ Relationships Seeded: ${r.get('relationships').toInt()}`);
+    console.log(` Clerks Seeded:        ${r.get('clerks').toInt()}`);
+    console.log(` Properties Seeded:    ${r.get('properties').toInt()}`);
+    console.log(` Citizens Seeded:      ${r.get('citizens').toInt()}`);
+    console.log(` Companies Seeded:     ${r.get('companies').toInt()}`);
+    console.log(` Relationships Seeded: ${r.get('relationships').toInt()}`);
     console.log('===================================================\n');
 
   } catch (error) {
-    console.error('❌ Seeding Error:', error);
+    console.error(' Seeding Error:', error);
   } finally {
     await session.close();
     await closeDriver();

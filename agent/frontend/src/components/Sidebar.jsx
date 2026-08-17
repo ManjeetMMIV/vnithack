@@ -8,7 +8,7 @@ export default function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-header">
         <img src="/nagpur-police-logo.jpg" alt="Logo" className="sidebar-logo" />
-        <h2>ACB Admin</h2>
+        <h2>NAGAR Admin</h2>
       </div>
       <nav className="sidebar-nav">
         <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>

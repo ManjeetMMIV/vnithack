@@ -22,12 +22,12 @@ export default function BlockchainUseCases() {
             <Fingerprint className="w-8 h-8 text-blue-400" />
             <span>1. Payload Hashing (SHA-256)</span>
           </div>
-          <div className="flow-arrow">➔</div>
+          <div className="flow-arrow"></div>
           <div className="flow-step">
             <Lock className="w-8 h-8 text-purple-400" />
             <span>2. Smart Contract Commit</span>
           </div>
-          <div className="flow-arrow">➔</div>
+          <div className="flow-arrow"></div>
           <div className="flow-step">
             <Link className="w-8 h-8 text-green-400" />
             <span>3. Real-time Audit Trigger</span>
