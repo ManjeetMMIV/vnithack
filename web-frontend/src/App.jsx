@@ -4,7 +4,6 @@ import {
   ShieldCheck,
   ShieldAlert,
   FileText,
-  Database,
   Lock,
   Flame,
   RefreshCw,
@@ -27,7 +26,7 @@ export default function App() {
   const [ownerName, setOwnerName] = useState('Dr. Vikram Sharma');
   const [areaSqFt, setAreaSqFt] = useState('2400');
   const [clerkId, setClerkId] = useState('REG-OFFICER-MH09');
-  const [uploadType, setUploadType] = useState('record'); // 'record' or 'file'
+  const [uploadType, setUploadType] = useState('record');
   const [file, setFile] = useState(null);
 
   // Status & Responses
@@ -71,7 +70,7 @@ export default function App() {
     }
   };
 
-  // 2. Handle Verification (Recompute Mongo Hash + Fetch Blockchain Hash)
+  // 2. Handle Verification
   const handleVerify = async () => {
     if (!verifyId.trim()) return;
     setVerifying(true);
@@ -112,22 +111,27 @@ export default function App() {
       <header className="bg-white border-b border-slate-300 shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
 
-          {/* Official Emblem & Titles */}
-          <div className="flex items-center space-x-4">
+          {/* Official Emblem + Nagpur City Police Logo + Titles */}
+          <div className="flex items-center space-x-3 md:space-x-4">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
               alt="National Emblem of India"
               className="h-14 w-auto object-contain"
             />
+            <img
+              src="/nagpur-police.png"
+              alt="Nagpur City Police"
+              className="h-14 w-auto object-contain"
+            />
             <div className="border-l-2 border-slate-300 pl-3">
-              <div className="text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-                Government of India • Ministry of Housing & Urban Affairs
+              <div className="text-[10px] md:text-[11px] font-bold tracking-wider text-slate-600 uppercase">
+                Government of Maharashtra • Nagpur City Police & Cyber Cell • NMC
               </div>
-              <h1 className="text-lg md:text-xl font-black tracking-tight text-[#003366] flex items-center gap-2">
-                NATIONAL DIGITAL LAND REGISTRY & TAMPER-DETECTION PORTAL
+              <h1 className="text-base md:text-xl font-black tracking-tight text-[#003366] flex items-center gap-2">
+                NAGPUR DIGITAL LAND REGISTRY & TAMPER-DETECTION PORTAL
               </h1>
               <div className="text-xs text-slate-500 font-medium flex items-center gap-2">
-                <span>सत्यमेव जयते (Truth Alone Triumphs)</span>
+                <span className="font-semibold text-slate-700">सद्रक्षणाय खलनिग्रहणाय</span>
                 <span>•</span>
                 <span className="text-emerald-700 font-semibold">Decentralized Cryptographic Ledger Enabled</span>
               </div>
@@ -168,7 +172,7 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
-              <strong>Statutory Notice:</strong> All registered records are mathematically sealed with SHA-256 genesis hashes committed to an immutable public blockchain node. Any illicit database alterations will be detected immediately.
+              <strong>Nagpur Police Cyber Cell Advisory:</strong> All registered property deeds are mathematically locked with SHA-256 genesis hashes on a blockchain ledger. Any unauthorized modifications to municipal database records are flagged automatically.
             </span>
           </div>
           <span className="hidden md:inline font-mono font-bold bg-amber-200/60 px-2 py-0.5 rounded text-[10px]">
@@ -185,7 +189,7 @@ export default function App() {
               <div className="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex justify-between items-center rounded-t-lg">
                 <div className="flex items-center space-x-2 text-[#003366]">
                   <Building2 className="w-5 h-5" />
-                  <span className="font-bold text-sm tracking-wide uppercase">Form L-01: Municipal Deed Registration</span>
+                  <span className="font-bold text-sm tracking-wide uppercase">Form L-01: Nagpur Municipal Deed Registration</span>
                 </div>
                 <span className="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-300">
                   Live Intake
@@ -352,10 +356,10 @@ export default function App() {
               <div className="bg-[#f4f7fa] border border-slate-300 rounded-lg p-4 text-xs text-slate-700 space-y-2">
                 <div className="font-bold text-[#003366] flex items-center space-x-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>National Cyber Security Directive</span>
+                  <span>Nagpur Cyber & Vigilance Directive</span>
                 </div>
                 <p className="text-[11px] leading-relaxed text-slate-600">
-                  Land registry entries are protected under ISO/IEC 27001 standards. Cryptographic hashes stored on-chain serve as legal proof of non-repudiation in vigilance and municipal inquiries.
+                  Land registry entries are protected under Information Technology Act, 2000 and ISO/IEC 27001 standards. Cryptographic hashes stored on-chain serve as legal proof of non-repudiation in vigilance and police inquiries.
                 </p>
               </div>
             </div>
@@ -369,7 +373,7 @@ export default function App() {
               <div className="flex items-center space-x-2 text-[#003366] mb-2">
                 <ShieldCheck className="w-5 h-5" />
                 <h2 className="font-bold text-sm uppercase tracking-wide">
-                  Central Vigilance & Land Auditor Verification Tool
+                  Nagpur Police & Central Vigilance Verification Engine
                 </h2>
               </div>
               <p className="text-xs text-slate-600 mb-4">
@@ -522,18 +526,23 @@ export default function App() {
       {/* 4. Official Government Footer */}
       <footer className="bg-white border-t border-slate-300 mt-12 py-4 text-center text-xs text-slate-600">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
               alt="India Emblem"
-              className="h-6 w-auto"
+              className="h-7 w-auto"
+            />
+            <img
+              src="/nagpur-police.png"
+              alt="Nagpur City Police"
+              className="h-7 w-auto"
             />
             <span className="font-semibold text-slate-800">
-              National Informatics Centre (NIC) • Government of India
+              Nagpur City Police • Cyber Crime Cell & NMC Governance
             </span>
           </div>
           <div>
-            Built for National Land Governance & Cryptographic Auditing
+            Cryptographic Integrity & Anti-Tamper System
           </div>
         </div>
       </footer>
