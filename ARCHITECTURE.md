@@ -110,7 +110,6 @@ stateDiagram-v2
 ---
 
 ## 3. End-to-End Sequence & Data Flow
-
 ```mermaid
 sequenceDiagram
     autonumber
@@ -121,44 +120,33 @@ sequenceDiagram
     participant Neo4j as Neo4j Aura Cloud DB
     participant LLM as OpenAI GPT-4o-mini
 
-    Officer->>UI: Selects Administrative Clerk (e.g. CLK-042: R. Sharma)
-    UI->>Server: EventSource GET /api/agent/analyze/CLK-042
-    Server->>LG: app.invoke({ clerkId: "CLK-042", logger: emitLog })
+    Note over LG,Neo4j: Agent 1: Autonomous Graph Investigation (graphCrawlerNode)
+    LG->>Neo4j: MATCH (c:Clerk {id: "CLK-042"})-[:APPROVED]->(p:Property)
+    Neo4j-->>LG: 4 Properties, Registry Hashes, Approval Fees
+    LG->>Server: emitLog("GRAPH_QUERY", "Executing Cypher...")
+    Server-->>UI: SSE event: log { phase: "GRAPH_QUERY", message: "..." }
     
-    rect rgb(240, 248, 255)
-        Note over LG,Neo4j: Agent 1: Autonomous Graph Investigation (graphCrawlerNode)
-        LG->>Neo4j: MATCH (c:Clerk {id: "CLK-042"})-[:APPROVED]->(p:Property)
-        Neo4j-->>LG: 4 Properties, Registry Hashes, Approval Fees
-        LG->>Server: emitLog("GRAPH_QUERY", "Executing Cypher...")
-        Server-->>UI: SSE event: log { phase: "GRAPH_QUERY", message: "..." }
-        
-        LG->>Neo4j: MATCH path = (origin:Citizen)-[:TRANSFERRED_TO*2..6]->(origin)
-        Neo4j-->>LG: 3-Hop Cycle: Anil Gupta ➔ Suresh Yadav ➔ Priya Devi ➔ Anil Gupta
-        LG->>Server: emitLog("ANOMALY_SCAN", "🚨 Detected Circular Transfer Loop (3 hops)")
-        Server-->>UI: SSE event: log { phase: "ANOMALY_SCAN", ... }
-    end
+    LG->>Neo4j: MATCH path = (origin:Citizen)-[:TRANSFERRED_TO*2..6]->(origin)
+    Neo4j-->>LG: 3-Hop Cycle: Anil Gupta ➔ Suresh Yadav ➔ Priya Devi ➔ Anil Gupta
+    LG->>Server: emitLog("ANOMALY_SCAN", "🚨 Detected Circular Transfer Loop (3 hops)")
+    Server-->>UI: SSE event: log { phase: "ANOMALY_SCAN", ... }
 
-    rect rgb(255, 245, 245)
-        Note over LG,LLM: Agent 2: AI Forensic Reasoning (forensicReasonerNode)
-        LG->>LG: anomalyRouter evaluates conditions ➔ routes to forensicReasoner
-        LG->>LLM: POST /chat/completions { prompt: Extracted Subgraph + Cycles + Indian Law Context }
-        LLM-->>LG: JSON { verdict: "CRIMINAL_RING_CONFIRMED", riskScore: 0.85, violations: ["IPC 420", "Benami Act"], ... }
-        LG->>Server: emitLog("CORRELATION", "AI Deduction: Pattern classified as Benami Syndicate")
-        Server-->>UI: SSE event: log { phase: "CORRELATION", ... }
-    end
+    Note over LG,LLM: Agent 2: AI Forensic Reasoning (forensicReasonerNode)
+    LG->>LG: anomalyRouter evaluates conditions ➔ routes to forensicReasoner
+    LG->>LLM: POST /chat/completions { prompt: Extracted Subgraph + Cycles + Indian Law Context }
+    LLM-->>LG: JSON { verdict: "CRIMINAL_RING_CONFIRMED", riskScore: 0.85, violations: ["IPC 420", "Benami Act"], ... }
+    LG->>Server: emitLog("CORRELATION", "AI Deduction: Pattern classified as Benami Syndicate")
+    Server-->>UI: SSE event: log { phase: "CORRELATION", ... }
 
-    rect rgb(245, 255, 245)
-        Note over LG,UI: Agent 3: Legal & Graph Synthesis (legalSynthesizerNode)
-        LG->>LG: Synthesize Police Dossier & Build Dynamic Visual Graph Payload
-        LG-->>Server: finalReport { status, riskScore, suspectRoster, visualGraph: { nodes, edges } }
-        Server-->>UI: SSE event: result { finalReport }
-        Server->>UI: Close SSE Stream
-    end
+    Note over LG,UI: Agent 3: Legal & Graph Synthesis (legalSynthesizerNode)
+    LG->>LG: Synthesize Police Dossier & Build Dynamic Visual Graph Payload
+    LG-->>Server: finalReport { status, riskScore, suspectRoster, visualGraph: { nodes, edges } }
+    Server-->>UI: SSE event: result { finalReport }
+    Server->>UI: Close SSE Stream
 
     UI->>UI: Render Interactive Canvas Graph (Pulsating Red Fraud Loops)
     UI->>UI: Render Police Dossier (Risk Score Gauge, Legal Charges, Suspect Table)
 ```
-
 ---
 
 ## 4. Neo4j Graph Database Schema Specification
